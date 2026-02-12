@@ -153,6 +153,9 @@
           <textarea name="message" placeholder="Your Message" rows="6" required></textarea>
           <button type="submit">Submit</button>
         </form>
+
+        <!-- ⭐ PRO SUCCESS MESSAGE (EXTENSION ONLY) -->
+        <p id="formStatus" style="margin-top:10px;font-weight:600;color:#00b894;"></p>
       </div>
 
       <!-- Map Section -->
@@ -175,9 +178,74 @@
   <footer class="cta-footer">
     <div class="container">
       <a href="index.html" class="cta-button">Back to Home</a>
-      <p>&copy; 2025 Swayam Padhi. All rights reserved.</p>
+      <p>&copy; 2026 Swayam Padhi. All rights reserved.</p>
     </div>
   </footer>
+
+
+  <!-- ===========================
+       ⭐ PRO EMAILJS EXTENSION
+  ============================ -->
+
+<script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+
+<script>
+(function(){
+  emailjs.init("tfqk4sATfwaiargHs");
+})();
+
+const form = document.querySelector("form");
+const statusText = document.getElementById("formStatus");
+
+let lastSubmitTime = 0; // ⭐ anti-spam cooldown
+
+form.addEventListener("submit", function(e){
+  e.preventDefault();
+
+  const now = Date.now();
+  if(now - lastSubmitTime < 8000){
+    statusText.style.color="#e74c3c";
+    statusText.textContent="Please wait before sending another message.";
+    return;
+  }
+
+  lastSubmitTime = now;
+
+  const btn = form.querySelector("button");
+  btn.disabled = true;
+
+  // ⭐ Spinner loader (no design change)
+  const originalHTML = btn.innerHTML;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+
+  statusText.textContent="";
+
+  emailjs.sendForm(
+    "service_gkadw79",
+    "template_mjttbri",
+    this
+  ).then(()=>{
+      statusText.style.color="#00b894";
+      statusText.textContent="✔ Message sent successfully!";
+      form.reset();
+
+      // ⭐ Auto reply email to sender
+      emailjs.send("service_gkadw79","template_mjttbri",{
+        name:"Swayam Padhi",
+        email:form.email.value,
+        message:"Thank you for contacting me! I will respond soon."
+      });
+
+  }).catch(()=>{
+      statusText.style.color="#e74c3c";
+      statusText.textContent="❌ Failed to send message.";
+  }).finally(()=>{
+      btn.innerHTML = originalHTML;
+      btn.disabled = false;
+  });
+
+});
+</script>
 
 </body>
 </html>
